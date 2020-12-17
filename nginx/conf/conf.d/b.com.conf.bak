@@ -1,0 +1,39 @@
+server {
+    listen 80;
+    server_name b.com;
+    charset utf-8;
+    index index.php index.html;
+    #此配置用于静态文件配置
+    #location /static {
+        #try_files $uri $uri/ =404;
+    #}
+
+    location ^~ /static/{
+        root /usr/share/nginx/html/hp-dc-api/public;
+    }
+
+    location / {
+#       try_files $uri /index.php$uri;
+        root   /usr/share/nginx/html/hp-dc-api/public;
+        index  index.html index.htm index.php;
+
+        if (!-e $request_filename) {
+            rewrite  ^(.*)$  /index.php?s=$1  last;
+            break;
+        }
+    }
+
+    # location / {
+    #     if (!-e $request_filename) {
+    #         rewrite  ^(.*)$  /index.php?s=$1 last;
+    #         break;
+    #     }
+    # }
+
+    location ~ \.php$ {
+        fastcgi_pass   php:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  /var/www/html/hp-dc-api/public/$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}

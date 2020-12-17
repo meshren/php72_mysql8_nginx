@@ -1,0 +1,45 @@
+FROM php:7.2-fpm-alpine
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk update && apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    curl-dev \
+    imagemagick-dev \
+    libtool \
+    libxml2-dev \
+    postgresql-dev \
+    sqlite-dev \
+    libmcrypt-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    && apk add --no-cache \
+    curl \
+    imagemagick \ 
+    postgresql-libs \
+    && pecl install imagick \
+    && pecl install mcrypt-1.0.1 \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-install mysqli \
+    && docker-php-ext-enable mcrypt \
+    && docker-php-ext-enable imagick \
+    && docker-php-ext-install \
+    curl \
+    mbstring \
+    pdo \
+    pdo_mysql \
+    pdo_pgsql \
+    pdo_sqlite \
+    pcntl \
+    tokenizer \
+    xml \
+    zip \
+    && docker-php-ext-install -j"$(getconf _NPROCESSORS_ONLN)" iconv \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install -j"$(getconf _NPROCESSORS_ONLN)" gd \
+    && pecl install -o -f redis \
+    && rm -rf /tmp/pear \
+    && docker-php-ext-enable redis \
+    && rm -r /var/cache/apk/*
+EXPOSE 9000
