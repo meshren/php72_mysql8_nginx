@@ -24,4 +24,5 @@ Homestead.json
 /mysql/data
 /rabbitmq/data
 /redis/data
+/.idea
 
